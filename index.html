@@ -335,10 +335,20 @@ grid.innerHTML = PROJETOS.map((p, i) => {
   const dr = p.video && (p.video.match(/drive\.google\.com\/file\/d\/([\w-]+)/) || [])[1];
   const src = p.thumb || (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : dr ? `https://drive.google.com/thumbnail?id=${dr}&sz=w640` : "");
   return `<button class="card ${p.formato === "vertical" ? "v" : ""}" data-i="${i}" data-c="${esc(p.categoria)}" aria-label="Abrir ${esc(p.titulo)}">
-   <div class="thumb"><div class="ph">${p.video ? "Sem capa" : "Espaço reservado"}</div>${src ? `<img src="${esc(src)}" alt="" loading="lazy" onerror="this.remove()">` : /\.(mp4|webm|mov)(\?|$)/i.test(p.video) ? `<video src="${esc(p.video)}#t=0.5" muted playsinline preload="metadata" onerror="this.remove()"></video>` : ""}<span class="play"></span></div>
+   <div class="thumb"><div class="ph">${p.video ? "Sem capa" : "Espaço reservado"}</div>${src ? `<img src="${esc(src)}" alt="" loading="lazy" onerror="this.remove()">` : /\.(mp4|webm|mov)(\?|$)/i.test(p.video) ? `<video src="${esc(p.video)}#t=0.5" muted loop playsinline preload="metadata" onerror="this.remove()"></video>` : ""}<span class="play"></span></div>
    <div class="meta"><h3>${esc(p.titulo)}</h3><span>${esc(p.categoria)}</span></div></button>`;
 }).join("");
 const cards = [...grid.children];
+
+/* preview: toca ao passar o mouse (ou ao focar com o teclado) */
+cards.forEach(c => {
+  const v = c.querySelector("video");
+  if (!v || reduce) return;
+  const on = () => { v.play().catch(() => {}); };
+  const off = () => { v.pause(); v.currentTime = 0.5; };
+  c.addEventListener("mouseenter", on); c.addEventListener("mouseleave", off);
+  c.addEventListener("focus", on); c.addEventListener("blur", off);
+});
 
 const cats = ["Todos", ...CATEGORIAS.filter(c => PROJETOS.some(p => p.categoria === c))];
 filters.innerHTML = cats.map((c, i) => `<button aria-pressed="${i === 0}" data-f="${c}">${c}</button>`).join("");
